@@ -176,7 +176,26 @@
             },
             methods: {
                 copiarTexto() {
-                    navigator.clipboard.writeText(this.textoFinal);
+                    var toCopy = document.createElement("textarea");
+                    document.body.appendChild(toCopy);
+                    toCopy.value = this.textoFinal;
+
+                    if (navigator.userAgent.match(/ipad|ipod|iphone/i)) {
+                        toCopy.contentEditable = true;
+                        toCopy.readOnly = true;
+                        var range = document.createRange();
+                        range.selectNodeContents(toCopy);
+                        var selection = window.getSelection();
+                        selection.removeAllRanges();
+                        selection.addRange(range);
+                        el.setSelectionRange(0, 999999);
+                    } else {
+                        toCopy.select();
+                    }
+
+                    document.execCommand("copy");
+                    document.body.removeChild(toCopy);
+
                     alert(" Texto copiado.\n Basta colar no Whatsapp.\n\n Jesus te abençoe!");
                 },
                 getCultoEventoFormatado() {
