@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Equipe Áudio - Central Eldorado</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <div id="app">
+
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="container-fluid">
+                <span class="navbar-brand mb-0 h1">Relatório Equipe Áudio - Central Eldorado</span>
+            </div>
+        </nav>
+        <div class="container mt-5">
+            <h4 class="text-center">Dados básicos</h4>
+            <div class="container-sm">
+                <div class="row">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Responsável *</span>
+                        <input type="text" v-model="responsavel" class="form-control" placeholder="Seu nome">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Data culto *</span>
+                            <input type="date" v-model="dataCulto" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-sm">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Hora culto *</span>
+                            <input type="time" v-model="horaCulto" class="form-control">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="inputGroupSelect01">Culto *</label>
+                        <select class="form-select" v-model="tipoCulto" id="inputGroupSelect01">
+                          <option v-for="culto in tiposDeCulto" :value="culto.value">
+                              {{ culto.text }}
+                          </option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3" v-if="tipoCulto === 'outros'">
+                        <span class="input-group-text">Outro culto / evento</span>
+                        <input type="text" v-model="outroCulto" class="form-control" placeholder="especifique o culto/evento">
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="text-center mb-3">Marque os itens existentes no culto *</h4>
+            <div class="container-sm">
+                <div class="row">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Vocal</span>
+                        <input type="number" v-model="banda.vocal" min="0" class="form-control">
+                    </div>
+                </div>
+                <div class="row mx-0">
+                    <div class="col form-check">
+                        <input class="form-check-input" type="checkbox" v-model="banda.bateria" id="bateria">
+                        <label class="form-check-label" for="bateria">
+                          Bateria
+                        </label>
+                    </div>
+                    <div class="col form-check">
+                        <input class="form-check-input" type="checkbox" v-model="banda.baixo" id="baixo">
+                        <label class="form-check-label" for="baixo">
+                          Baixo
+                        </label>
+                    </div>
+                    <div class="col form-check">
+                        <input class="form-check-input" type="checkbox" v-model="banda.violao" id="violao">
+                        <label class="form-check-label" for="violao">
+                          Violão
+                        </label>
+                    </div>
+                </div>
+                <div class="row mx-0 my-3">
+                    <div class="col form-check">
+                        <input class="form-check-input" type="checkbox" v-model="banda.guitarra" id="guitarra">
+                        <label class="form-check-label" for="guitarra">
+                          Guitarra
+                        </label>
+                    </div>
+                    <div class="col form-check">
+                        <input class="form-check-input" type="checkbox" v-model="banda.teclado" id="teclado">
+                        <label class="form-check-label" for="teclado">
+                          Teclado
+                        </label>
+                    </div>
+                    <div class="col form-check">
+                        <input class="form-check-input" type="checkbox" v-model="banda.dm" id="dm">
+                        <label class="form-check-label" for="dm">
+                          DM
+                        </label>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-text">
+                        <input class="form-check-input mt-0" type="checkbox" v-model="bandaOutrosCheck">
+                    </div>
+                    <input type="text" v-model="bandaOutrosText" :disabled="!bandaOutrosCheck" class="form-control" placeholder="Outros...">
+                </div>
+                <div class="row">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">Observações</span>
+                        <textarea v-model="observacoes" rows="5" class="form-control" placeholder="conste observações da sua atuação">
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-5 bg-light" style="width: 100%;">
+                <div class="card-body">
+                    <h5 class="card-title">Texto final:</h5>
+                    <h6>(formatado para Whatsapp)</h6>
+                    <p style="white-space: pre-line" id="textoFinal">{{textoFinal}}</p>
+                    <button type="button" :disabled="copyDisabled" class="btn btn-success" @click="copiarTexto">Copiar texto</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js " integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p " crossorigin="anonymous "></script>
+    <script src="https://unpkg.com/vue@next "></script>
+    <script>
+        const checklistAudio = {
+            data() {
+                return {
+                    responsavel: '',
+                    tipoCulto: '',
+                    dataCulto: '',
+                    horaCulto: '',
+                    banda: {
+                        vocal: 0,
+                        bateria: false,
+                        baixo: false,
+                        violao: false,
+                        guitarra: false,
+                        teclado: false,
+                        dm: false
+                    },
+                    bandaOutrosCheck: false,
+                    bandaOutrosText: '',
+                    observacoes: '',
+                    outroCulto: '',
+                    tiposDeCulto: [{
+                        text: 'Alt Adolescentes',
+                        value: 'altAdl'
+                    }, {
+                        text: 'Alt Jovens Adultos',
+                        value: 'altJvs'
+                    }, {
+                        text: 'Domingo manhã',
+                        value: 'domManha'
+                    }, {
+                        text: 'Domingo noite',
+                        value: 'domNoite'
+                    }, {
+                        text: 'outros cultos/eventos',
+                        value: 'outros'
+                    }, ]
+                }
+            },
+            methods: {
+                copiarTexto() {
+                    navigator.clipboard.writeText(this.textoFinal);
+                    alert(" Texto copiado.\n Basta colar no Whatsapp.\n\n Jesus te abençoe!");
+                },
+                getCultoEventoFormatado() {
+                    let culto;
+                    if (this.tipoCulto === 'outros') {
+                        culto = this.outroCulto;
+                    } else {
+                        const clt = this.tiposDeCulto.find(c => {
+                            return c.value === this.tipoCulto;
+                        });
+                        culto = !!clt ? clt.text : '';
+                    }
+                    return culto;
+                },
+                isGreaterThanToday() {
+                    const today = new Date();
+                    const chosen = new Date(`${this.dataCulto} ${this.horaCulto}:00`);
+                    chosen > today || !this.horaCulto;
+                }
+            },
+            computed: {
+                textoFinal() {
+                    const culto = this.getCultoEventoFormatado();
+                    const dataCulto = new Date(this.dataCulto).toLocaleDateString('pt-br');
+
+                    let textoFinal = `Resumo da atuação da equipe de áudio:\n\n` +
+                        `*Responsável*: ${this.responsavel}\n` +
+                        `*Data*: ${dataCulto}\n` +
+                        `*Hora*: ${this.horaCulto}\n` +
+                        `*Culto/evento*: ${culto}\n` +
+                        `*Estrutura da banda*: \n`;
+
+                    Object.entries(this.banda).forEach(b => {
+                        if (b[0] === 'vocal') {
+                            textoFinal += `- ${b[1]} vozes\n`;
+                        } else if (b[1] === true) {
+                            textoFinal += `- ${b[0].charAt(0).toUpperCase() + b[0].slice(1)}\n`;
+                        }
+                    });
+
+                    textoFinal += `${this.bandaOutrosText}`;
+
+                    textoFinal += `\n*Observações*: \n${this.observacoes}`;
+
+                    return textoFinal;
+                },
+                copyDisabled() {
+                    console.log(this.horaCulto)
+                    this.isGreaterThanToday();
+                    return this.banda.vocal <= 0 ||
+                        !this.responsavel ||
+                        this.getCultoEventoFormatado().length <= 0 ||
+                        this.isGreaterThanToday();
+                },
+
+            }
+        }
+
+        Vue.createApp(checklistAudio).mount('#app')
+    </script>
+</body>
+
+</html>
